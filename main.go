@@ -7,13 +7,19 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.uber.org/zap"
 )
 
 func main() {
 
+	platform := new(Platform)
+
 	settings := new(Settings)
 
 	settings.Load("./settings.json")
+
+	logger, _ := zap.NewProduction()
+	defer logger.Sync()
 
 	db, err := gorm.Open(
 		"postgres",
@@ -27,16 +33,17 @@ func main() {
 	}
 	defer db.Close()
 
+	platform.db = db
+	platform.logger = logger.Sugar()
+
 	e := echo.New()
 
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	p := new(Platform)
-
 	r := e.Group("/releases")
-	r.GET("/check", p.checkUpdate)
+	r.GET("/check", platform.checkUpdate)
 
 	g := e.Group("/admin")
 

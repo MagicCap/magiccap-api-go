@@ -1,0 +1,2 @@
+# MagicCap API Go
+
