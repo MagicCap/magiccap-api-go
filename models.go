@@ -63,6 +63,15 @@ type (
 			DB       string `json:"db"`
 			Password string `json:"password"`
 		} `json:"db"`
+		Spaces struct {
+			Endpoint        string `json:"endpoint"`
+			AccessKeyID     string `json:"access_key_id"`
+			SecretAccessKey string `json:"secret_access_key"`
+			BucketName      string `json:"bucket_name"`
+		} `json:"spaces"`
+		DigitalOcean struct {
+			Token string `json:"api_key"`
+		} `json:"digital_ocean"`
 		Port string `json:"listen_port"`
 	}
 )
