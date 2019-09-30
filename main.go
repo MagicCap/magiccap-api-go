@@ -46,6 +46,7 @@ func main() {
 	r.GET("/check", platform.checkUpdate)
 
 	g := e.Group("/admin")
+	g.POST("/release")
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))

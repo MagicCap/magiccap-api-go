@@ -22,6 +22,13 @@ type (
 		Info       string      `json:"description"`
 		Type       ReleaseType `gorm:"not null" json:"channel"`
 		PackageURL string      `json:"url"`
+		Hash       string      `json:"hash"`
+	}
+
+	// ReleasePublish represents a release to publish including base64 encoded bytes for the binary
+	ReleasePublish struct {
+		Data    string  `json:"data"`
+		Release Release `json:"release"`
 	}
 
 	// Check represents a request to check the current version
