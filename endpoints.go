@@ -11,7 +11,7 @@ import (
 func (p *Platform) checkUpdate(ctx echo.Context) error {
 	c := new(Check)
 	if err := ctx.Bind(c); err != nil {
-		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "bad request"})
+		return ctx.JSON(http.StatusBadRequest, map[string]string{"message": "bad request", "error": err.Error()})
 	}
 	var r Release
 	p.db.Where("type = ?", strings.ToLower(string(c.Channel))).Last(&r)
