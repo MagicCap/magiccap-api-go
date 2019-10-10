@@ -1,7 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -11,17 +13,32 @@ import (
 	"go.uber.org/zap"
 )
 
+func init() {
+	flag.BoolVar(&generateConfig, "g", false, "Generate config file")
+	flag.Parse()
+}
+
+var generateConfig bool
+
 func main() {
 
 	platform := new(Platform)
 
 	settings := new(Settings)
 
-	settings.Load("./settings.json")
-
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
-	platform.logger = logger.Sugar()
+	sugar := logger.Sugar()
+
+	if generateConfig {
+		settings.Save("settings.example.json")
+		sugar.Info("Generated config and written to settings.example.json")
+		os.Exit(0)
+	}
+
+	settings.Load("./settings.json")
+
+	platform.logger = sugar
 
 	db, err := gorm.Open(
 		"postgres",
@@ -34,6 +51,9 @@ func main() {
 		platform.logger.Panic("Unable to connect to DB: ", err)
 	}
 	defer db.Close()
+
+	db.AutoMigrate(&Release{})
+	db.AutoMigrate(&Admin{})
 
 	// Storage Client
 	endpoint := settings.Spaces.Endpoint
@@ -58,6 +78,7 @@ func main() {
 	r.GET("/check", platform.checkUpdate)
 
 	g := e.Group("/admin")
+	g.Use(middleware.KeyAuth(platform.checkKey))
 	g.POST("/release", platform.addRelease)
 
 	// Start server

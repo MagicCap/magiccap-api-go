@@ -15,14 +15,20 @@ const (
 )
 
 type (
+	// Admin represents an admin user with access key
+	Admin struct {
+		Username  string `json:"username" gorm:"unique;not null"`
+		AccessKey string `json:"access_key" gorm:"unique;not null"`
+	}
+
 	// Release represents a specific released version of the software
 	Release struct {
 		gorm.Model
-		Version    string      `gorm:"unique;not null" json:"version"`
-		Info       string      `json:"description"`
-		Type       ReleaseType `gorm:"not null" json:"channel"`
-		PackageURL string      `json:"url"`
-		Hash       string      `json:"hash"`
+		Version  string      `gorm:"unique;not null" json:"version"`
+		Info     string      `json:"description"`
+		Type     ReleaseType `gorm:"not null" json:"channel"`
+		FileName string      `json:"file_name"`
+		Hash     string      `json:"hash"`
 	}
 
 	// ReleasePublish represents a release to publish including base64 encoded bytes for the binary
@@ -39,7 +45,7 @@ type (
 
 	// CheckResponse contains the reply to a Check request
 	CheckResponse struct {
-		Update  bool    `json:"update_available`
+		Update  bool    `json:"update_available"`
 		Release Release `json:"release"`
 	}
 
@@ -68,10 +74,8 @@ type (
 			AccessKeyID     string `json:"access_key_id"`
 			SecretAccessKey string `json:"secret_access_key"`
 			BucketName      string `json:"bucket_name"`
+			CDNEndpoint     string `json:"cdn_endpoint"`
 		} `json:"spaces"`
-		DigitalOcean struct {
-			Token string `json:"api_key"`
-		} `json:"digital_ocean"`
 		Port string `json:"listen_port"`
 	}
 )
