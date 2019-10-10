@@ -1,0 +1,34 @@
+version: '3'
+services:
+  s3:
+    image: adobe/s3mock
+    restart: always
+    environment:
+      - initialBuckets=magiccap
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: magiccap
+      POSTGRES_PASSWORD: postgresdevpw
+      POSTGRES_DB: magiccap
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@domain.com
+      PGADMIN_DEFAULT_PASSWORD: pgadmindevpw
+    ports:
+      - 3000:80
+    depends_on:
+      - db
+  api:
+    build: .
+    restart: always
+    volumes:
+      - ./settings.json:/settings.json
+    ports:
+      - 8081:8081
+    depends_on:
+      - db
+      - s3

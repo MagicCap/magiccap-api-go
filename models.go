@@ -68,6 +68,7 @@ type (
 			User     string `json:"user"`
 			DB       string `json:"db"`
 			Password string `json:"password"`
+			SSLMode  string `json:"sslmode"`
 		} `json:"db"`
 		Spaces struct {
 			Endpoint        string `json:"endpoint"`
@@ -75,6 +76,7 @@ type (
 			SecretAccessKey string `json:"secret_access_key"`
 			BucketName      string `json:"bucket_name"`
 			CDNEndpoint     string `json:"cdn_endpoint"`
+			UseSSL          bool   `json:"use_ssl"`
 		} `json:"spaces"`
 		Port string `json:"listen_port"`
 	}

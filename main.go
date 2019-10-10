@@ -43,12 +43,13 @@ func main() {
 	db, err := gorm.Open(
 		"postgres",
 		fmt.Sprintf(
-			"host=%s port=%s user=%s dbname=%s password=%s",
+			"host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
 			settings.DB.Host, settings.DB.Port,
-			settings.DB.User, settings.DB.DB, settings.DB.Password),
+			settings.DB.User, settings.DB.DB, settings.DB.Password,
+			settings.DB.SSLMode),
 	)
 	if err != nil {
-		platform.logger.Panic("Unable to connect to DB: ", err)
+		platform.logger.Fatal("Unable to connect to DB: ", err)
 	}
 	defer db.Close()
 
@@ -59,9 +60,10 @@ func main() {
 	endpoint := settings.Spaces.Endpoint
 	accessKeyID := settings.Spaces.AccessKeyID
 	secretAccessKey := settings.Spaces.SecretAccessKey
-	storageClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, true)
+	sugar.Debugf("Use SSL: %b", settings.Spaces.UseSSL)
+	storageClient, err := minio.New(endpoint, accessKeyID, secretAccessKey, settings.Spaces.UseSSL)
 	if err != nil {
-		platform.logger.Panic("Unable to configure Spaces", err)
+		platform.logger.Fatal("Unable to configure Spaces", err)
 	}
 
 	platform.storage = storageClient
@@ -81,6 +83,11 @@ func main() {
 	g.Use(middleware.KeyAuth(platform.checkKey))
 	g.POST("/release", platform.addRelease)
 
+	port := settings.Port
+	if port == "" {
+		port = "1323"
+	}
+
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
 }
